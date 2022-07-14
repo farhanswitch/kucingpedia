@@ -76,7 +76,9 @@ const App = () => {
   return (
     <>
       <div className="container mx-auto max-w-5xl">
-        <h1 className="text-center">Kucingpedia</h1>
+        <h1 className="text-center my-8 text-2xl bg-gradient-to-r from-[#2bc0e4] to-[#eaecc6] font-bold tracking-wider font-serif bg-clip-text text-transparent">
+          Kucingpedia
+        </h1>
 
         {isError && <p>Terjadi error</p>}
 
