@@ -1,5 +1,6 @@
 import "./styles/style.css";
 import useEffectOnce from "./hooks/useEffectOnce";
+import useDebounce from "./hooks/useDebounce";
 import Card from "./components/Card";
 import axios from "axios";
 import { useRef, useCallback, useState, useEffect } from "react";
@@ -10,6 +11,9 @@ const App = () => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMax, setIsMax] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useDebounce(() => console.log(searchQuery), 1000, [searchQuery]);
 
   const observer = useRef();
   const lastItemRef = useCallback(
@@ -79,6 +83,14 @@ const App = () => {
         <h1 className="text-center my-8 text-2xl bg-gradient-to-r from-[#2bc0e4] to-[#eaecc6] font-bold tracking-wider font-serif bg-clip-text text-transparent">
           Kucingpedia
         </h1>
+        <div className="search-area mb-6">
+          <input
+            className="border px-2 py-1 block mx-auto"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
         {isError && <p>Terjadi error</p>}
 
