@@ -10,19 +10,25 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffectOnce(()=>{
-    axios({
-      method:'GET',
-      url:'https://api.thecatapi.com/v1/breeds',
-      headers:{'x-api-key':key},
-      params:{
-        attach_breed:0,
-        limit:10,
-        page:pageNumber
+    try{
+      setIsLoading(true);
+      axios({
+        method:'GET',
+        url:'https://api.thecatapi.com/v1/breeds',
+        headers:{'x-api-key':key},
+        params:{
+          attach_breed:0,
+          limit:10,
+          page:pageNumber
+        }
+      }).then(response=>{
+        setIsLoading(false);
+        setData(prevData=>[...prevData,...response.data])
+      });}
+      catch(error){
+        setIsError(true);
+        console.error(`Error : ${error}`);
       }
-    }).then(response=>{
-      console.log(response.data);
-      setData(prevData=>[...prevData,...response.data])
-    });
   //   const getData = async (limit,page)=>{
   //     return await (await axios.get(`https://api.thecatapi.com/v1/breeds?attach_breed=0&limit=${limit}&page=${page}`,{headers:{'x-api-key':key}})).data;
 
@@ -33,13 +39,16 @@ const App = () => {
 
 return(
 <>
-<h1 className="text-center">Kucingpedia</h1>
 <div className="container mx-auto max-w-5xl">
-{data.length !== 0 && data.map((kucing,index)=>{
-  return(
-    <p className='w-4/5 mx-auto min-h-[50px] border shadow mb-4 px-6 py-3' key={index}>{kucing.name}</p>
-  );
-})}
+  <h1 className="text-center">Kucingpedia</h1>
+  {isLoading && (<p className='text-center text-blue-800 text-lg mt-8'>Loading...</p>)}
+  {isError && (<p>Terjadi error</p>)}
+
+  {data.length !== 0 && data.map((kucing,index)=>{
+    return(
+      <p className='w-4/5 mx-auto min-h-[50px] border shadow mb-4 px-6 py-3' key={index}>{kucing.name}</p>
+    );
+  })}
 </div>
 </>
 
