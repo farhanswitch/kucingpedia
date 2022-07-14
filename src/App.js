@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import './styles/style.css';
+import axios from 'axios';
+import {useEffect, useState} from 'react';
+const App = () => {
+  const key = 'e712b07d-5259-41fa-9ba6-260dbdd2554e';
+  const [data,setData] = useState([]);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  useEffect(()=>{
+    axios({
+      method:'GET',
+      url:'https://api.thecatapi.com/v1/breeds',
+      headers:{'x-api-key':key},
+      params:{
+        attach_breed:0,
+        limit:10,
+        page:pageNumber
+      }
+    }).then(response=>{
+      setData(prevData=>[...prevData,...response.data])
+    });
+  //   const getData = async (limit,page)=>{
+  //     return await (await axios.get(`https://api.thecatapi.com/v1/breeds?attach_breed=0&limit=${limit}&page=${page}`,{headers:{'x-api-key':key}})).data;
+
+  //   }
+  // getData(10,pageNumber).then(data=>setData(data));
+
+  },[pageNumber]);
+
+return(
+<>
+<h1 className="text-center">Kucingpedia</h1>
+<div className="container mx-auto max-w-5xl">
+{data.length !== 0 && data.map((kucing,index)=>{
+  return(
+    <p className='w-4/5 mx-auto min-h-[50px] border shadow mb-4 px-6 py-3' key={index}>{kucing.name}</p>
   );
+})}
+</div>
+</>
+
+);
 }
 
 export default App;
