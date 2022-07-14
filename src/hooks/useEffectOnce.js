@@ -1,13 +1,14 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 
 const useEffectOnce = (callback, dependencies) => {
+	const triggerToReRun = useMemo(() => [...dependencies], [dependencies]);
 	const hasRun = useRef(false);
 	useEffect(() => {
 		if (!hasRun.current) {
 			callback();
 			hasRun.current = true;
 		}
-	}, [...dependencies]);
+	}, triggerToReRun);
 };
 
 export default useEffectOnce;
