@@ -1,4 +1,5 @@
 import './styles/style.css';
+import useEffectOnce from './hooks/useEffectOnce';
 import axios from 'axios';
 import {useEffect, useState} from 'react';
 const App = () => {
@@ -8,7 +9,7 @@ const App = () => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(()=>{
+  useEffectOnce(()=>{
     axios({
       method:'GET',
       url:'https://api.thecatapi.com/v1/breeds',
@@ -19,6 +20,7 @@ const App = () => {
         page:pageNumber
       }
     }).then(response=>{
+      console.log(response.data);
       setData(prevData=>[...prevData,...response.data])
     });
   //   const getData = async (limit,page)=>{
