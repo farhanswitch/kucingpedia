@@ -1,3 +1,4 @@
+//import node modules
 import { useState } from "react";
 import { BsFillArrowDownSquareFill } from "react-icons/bs";
 import {
@@ -7,10 +8,14 @@ import {
   AiOutlineArrowRight,
 } from "react-icons/ai";
 import axios from "axios";
+//import local modules
+import { key } from "../utilities/key";
 
 const Card = ({ data, refImg = null }) => {
+  //deklarasi states
   const [isOpen, setIsOpen] = useState(false);
   const [imageURL, setImageURL] = useState("");
+  //data untuk bagian detail kucing
   const ratings = [
     { title: "Adaptability", element: "adaptability" },
     { title: "Affection Level", element: "affection_level" },
@@ -25,7 +30,8 @@ const Card = ({ data, refImg = null }) => {
     { title: "Stranger Friendly", element: "stranger_friendly" },
     { title: "Vocalisation", element: "vocalisation" },
   ];
-  const key = "e712b07d-5259-41fa-9ba6-260dbdd2554e";
+
+  //ambil data url gambar kucing yang bersangkutan
   const getImageURL = async (id) => {
     await axios({
       method: "GET",
@@ -35,7 +41,10 @@ const Card = ({ data, refImg = null }) => {
       setImageURL(response.data.url);
     });
   };
+  //kalau di data kucing yang didapat melalui props belum ada url ke gambar, maka akan dicari url ke gambar dengan cara fetch API ke endpoint /images/{images_id}
   if (refImg !== "" && refImg !== null) getImageURL(refImg);
+
+  //fungsi untuk membuat bintang rating
   const makeStars = (starCount) => {
     let yellowStars = [];
     let emptyStars = [];
@@ -48,6 +57,7 @@ const Card = ({ data, refImg = null }) => {
 
     return [yellowStars, emptyStars];
   };
+  //fungsi untuk membuat bagian rating untuk setiap data
   const createRatingSection = (title, element) => {
     return (
       <div className={`${data[element] ? "block" : "hidden"}`}>
@@ -67,12 +77,18 @@ const Card = ({ data, refImg = null }) => {
       </div>
     );
   };
+
+  //tentukan url gambar kucing
   let url = "";
+  //jika di data yang didapat melalui props sudah ada url gambar, maka gunakan url itu
   if (data["image"]) {
     url = data["image"].url;
-  } else if (imageURL !== "") {
+  }
+  //jika di state imageUrL sudah ada link, maka gunakan
+  else if (imageURL !== "") {
     url = imageURL;
   }
+  //beberapa ras kucing tidak tersedia gambar baik di data dari endpoint /breeds atau dari endpoint /images/
 
   return (
     <div className="card px-8 py-6 mt-10 border shadow w-[90%] mx-auto md:w-full">
