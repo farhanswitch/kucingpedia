@@ -1,13 +1,15 @@
+//import local modules
 import "./styles/style.css";
-import useEffectOnce from "./hooks/useEffectOnce";
-import useDebounce from "./hooks/useDebounce";
 import { key } from "./utilities/key";
 import Card from "./components/Card";
 import Nav from "./components/Nav";
 import SearchResult from "./components/SearchResult";
+//import node modules
 import axios from "axios";
 import { useRef, useCallback, useState, useEffect } from "react";
+
 const App = () => {
+  //deklarasi states
   const [data, setData] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
   const [isError, setIsError] = useState(false);
@@ -15,25 +17,28 @@ const App = () => {
   const [isMax, setIsMax] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useDebounce(() => console.log(searchQuery), 1000, [searchQuery]);
-
+  //deklarasi observer untuk memantau item terakhir
   const observer = useRef();
+
+  //deklarasi fungsi dilakukan saat item terakhir muncul di layar
   const lastItemRef = useCallback(
     (lastItemNode) => {
       if (isLoading) return;
+      //disconnect item terakhir saat ini
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
           if (!isMax) setPageNumber(pageNumber + 1);
         }
       });
+      //observe item terakhir yang baru
       if (lastItemNode) observer.current.observe(lastItemNode);
-
-      console.log("Last node");
     },
     [isLoading]
   );
+  //function untuk handle saat value dari search bar berubah
   const handleInputChange = (text) => setSearchQuery(text);
+  //function untuk ambil data dari API
   const getCatsData = () => {
     try {
       setIsLoading(true);
@@ -54,6 +59,7 @@ const App = () => {
             return;
           }
           setData((prevData) => {
+            //hilangkan  duplikasi data
             const newData = response.data.filter((data) => {
               const isExist = prevData.find((cat) => cat.id === data.id);
               if (!isExist) {
@@ -71,12 +77,6 @@ const App = () => {
   };
   useEffect(() => {
     getCatsData();
-
-    //   const getData = async (limit,page)=>{
-    //     return await (await axios.get(`https://api.thecatapi.com/v1/breeds?attach_breed=0&limit=${limit}&page=${page}`,{headers:{'x-api-key':key}})).data;
-
-    //   }
-    // getData(10,pageNumber).then(data=>setData(data));
   }, [pageNumber]);
 
   return (
