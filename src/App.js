@@ -1,101 +1,122 @@
-import './styles/style.css';
-import useEffectOnce from './hooks/useEffectOnce';
-import axios from 'axios';
-import {useRef, useCallback, useState, useEffect} from 'react';
+//import local modules
+import "./styles/style.css";
+import { key } from "./utilities/key";
+import Card from "./components/Card";
+import Nav from "./components/Nav";
+import SearchResult from "./components/SearchResult";
+//import node modules
+import axios from "axios";
+import { useRef, useCallback, useState, useEffect } from "react";
+
 const App = () => {
-  const key = 'e712b07d-5259-41fa-9ba6-260dbdd2554e';
-  const [data,setData] = useState([]);
+  //deklarasi states
+  const [data, setData] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMax,setIsMax] = useState(false);
+  const [isMax, setIsMax] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  //deklarasi observer untuk memantau item terakhir
   const observer = useRef();
-  const lastItemRef = useCallback(lastItemNode=>{
-    if(isLoading) return;
-    if(observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries=>{
-      if(entries[0].isIntersecting){
-        if (!isMax) setPageNumber(pageNumber+1);
-      }
-    });
-    if(lastItemNode) observer.current.observe(lastItemNode);
 
-    console.log('Last node');
-  },[isLoading]);
-
-  const getCatsData = () => {
-    try{
-      setIsLoading(true);
-      setTimeout(()=>{
-      axios({
-        method:'GET',
-        url:'https://api.thecatapi.com/v1/breeds',
-        headers:{'x-api-key':key},
-        params:{
-          attach_breed:0,
-          limit:10,
-          page:pageNumber
+  //deklarasi fungsi dilakukan saat item terakhir muncul di layar
+  const lastItemRef = useCallback(
+    (lastItemNode) => {
+      if (isLoading) return;
+      //disconnect item terakhir saat ini
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (!isMax) setPageNumber(pageNumber + 1);
         }
-      }).then(response=>{
-        setIsLoading(false);
-        if(response.data.length === 0){
+      });
+      //observe item terakhir yang baru
+      if (lastItemNode) observer.current.observe(lastItemNode);
+    },
+    //eslint-disable-next-line
+    [isLoading]
+  );
+  //function untuk handle saat value dari search bar berubah
+  const handleInputChange = (text) => setSearchQuery(text);
+  //function untuk ambil data dari API
+  const getCatsData = () => {
+    try {
+      setIsLoading(true);
+      setTimeout(() => {
+        axios({
+          method: "GET",
+          url: "https://api.thecatapi.com/v1/breeds",
+          headers: { "x-api-key": key },
+          params: {
+            attach_breed: 0,
+            limit: 10,
+            page: pageNumber,
+          },
+        }).then((response) => {
+          setIsLoading(false);
+          if (response.data.length === 0) {
             setIsMax(true);
             return;
-        }
-        setData(prevData=>{
-          const newData = response.data.filter(data=>{
-            const isExist = prevData.find(cat=>cat.id === data.id);
-            if(!isExist){
-              return data;
-            }
+          }
+          setData((prevData) => {
+            //hilangkan  duplikasi data
+            //eslint-disable-next-line
+            const newData = response.data.filter((data) => {
+              const isExist = prevData.find((cat) => cat.id === data.id);
+              if (!isExist) {
+                return data;
+              }
+            });
+            return [...prevData, ...newData];
           });
-          return[...prevData,...newData];
-        })
-      });
-      },3000);
+        });
+      }, 3000);
+    } catch (error) {
+      setIsError(true);
+      console.error(`Error : ${error}`);
     }
-      catch(error){
-        setIsError(true);
-        console.error(`Error : ${error}`);
-      }
-  }
-  useEffect(()=>{
+  };
+  useEffect(() => {
     getCatsData();
-   
-  //   const getData = async (limit,page)=>{
-  //     return await (await axios.get(`https://api.thecatapi.com/v1/breeds?attach_breed=0&limit=${limit}&page=${page}`,{headers:{'x-api-key':key}})).data;
+    //eslint-disable-next-line
+  }, [pageNumber]);
 
-  //   }
-  // getData(10,pageNumber).then(data=>setData(data));
+  return (
+    <>
+      <Nav searchQuery={searchQuery} handleChange={handleInputChange} />
+      <div className="container mt-4 mx-auto max-w-5xl">
+        {isError && <p>Terjadi error</p>}
 
-  },[pageNumber]);
-
-return(
-<>
-<div className="container mx-auto max-w-5xl">
-  <h1 className="text-center">Kucingpedia</h1>
-  
-  {isError && (<p>Terjadi error</p>)}
-
-  {data.length !== 0 && data.map((kucing,index)=>{
-    if(index+1 === data.length){
-      return(
-        <p ref={lastItemRef} className='w-4/5 mx-auto min-h-[50px] border shadow mt-4 px-6 py-3' key={index}>{kucing.name}</p>
-      );
-    }
-    else{
-      return(
-        <p className='w-4/5 mx-auto min-h-[50px] border shadow mt-4 px-6 py-3' key={index}>{kucing.name}</p>
-      );
-    }
-  })}
-  {isLoading && (<p className='text-center text-blue-800 text-lg mt-1 mb-8'>Loading...</p>)}
-  {isMax && (<p className='text-center bg-blue-600 text-white py-2'>Data sudah maksimum. Tidak ada data lagi.</p>)}
-</div>
-</>
-
-);
-}
+        {searchQuery === "" ? (
+          data.length !== 0 &&
+          data.map((kucing, index) => {
+            if (index + 1 === data.length) {
+              return (
+                <div ref={lastItemRef} key={kucing.id}>
+                  <Card data={kucing} />
+                </div>
+              );
+            } else {
+              return <Card key={kucing.id} data={kucing} />;
+            }
+          })
+        ) : (
+          <SearchResult searchQuery={searchQuery} />
+        )}
+        {isLoading && (
+          <p className="text-center text-blue-800 text-lg mt-1 mb-8">
+            Loading...
+          </p>
+        )}
+        {isMax && (
+          <p className="text-center bg-blue-600 text-white py-2">
+            Data sudah maksimum. Tidak ada data lagi.
+          </p>
+        )}
+      </div>
+    </>
+  );
+};
 
 export default App;
