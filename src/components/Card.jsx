@@ -6,9 +6,11 @@ import {
   AiOutlineStar,
   AiOutlineArrowRight,
 } from "react-icons/ai";
+import axios from "axios";
 
-const Card = ({ data }) => {
+const Card = ({ data, refImg = null }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [imageURL, setImageURL] = useState("");
   const ratings = [
     { title: "Adaptability", element: "adaptability" },
     { title: "Affection Level", element: "affection_level" },
@@ -23,6 +25,17 @@ const Card = ({ data }) => {
     { title: "Stranger Friendly", element: "stranger_friendly" },
     { title: "Vocalisation", element: "vocalisation" },
   ];
+  const key = "e712b07d-5259-41fa-9ba6-260dbdd2554e";
+  const getImageURL = async (id) => {
+    await axios({
+      method: "GET",
+      url: `https://api.thecatapi.com/v1/images/${id}`,
+      headers: { "x-api-key": key },
+    }).then((response) => {
+      setImageURL(response.data.url);
+    });
+  };
+  if (refImg !== "" && refImg !== null) getImageURL(refImg);
   const makeStars = (starCount) => {
     let yellowStars = [];
     let emptyStars = [];
@@ -37,7 +50,7 @@ const Card = ({ data }) => {
   };
   const createRatingSection = (title, element) => {
     return (
-      <>
+      <div className={`${data[element] ? "block" : "hidden"}`}>
         <h4 className="mb-2 text-lg">{title}</h4>
         <div className="flex gap-2">
           {makeStars(data[element])[0].map((star) => (
@@ -51,15 +64,22 @@ const Card = ({ data }) => {
             </span>
           ))}
         </div>
-      </>
+      </div>
     );
   };
+  let url = "";
+  if (data["image"]) {
+    url = data["image"].url;
+  } else if (imageURL !== "") {
+    url = imageURL;
+  }
+
   return (
     <div className="card px-8 py-6 mt-10 border shadow w-[90%] mx-auto md:w-full">
       <div className="utama flex-column-reverse sm:flex-row gap-2 md:gap-4">
         <div className="kiri w-full md:w-1/3 h-[270px] px-0 md:px-4 mx-auto ">
           <img
-            src={data["image"].url}
+            src={url}
             alt={data.name}
             className="object-cover object-center w-[60%] min-w-[80px] md:w-[450px] max-h-[250px] block mx-auto"
           />
@@ -84,9 +104,15 @@ const Card = ({ data }) => {
           </button>
         </div>
         <div className={`other-info mt-4 px-4 ${isOpen ? "block" : "hidden"}`}>
-          <h4 className="mb-2 text-lg">Origin</h4>
+          <h4 className={`mb-2 text-lg ${data.origin ? "block" : "hidden"}`}>
+            Origin
+          </h4>
           <p className="text-slate-600 mb-6">{data.origin}</p>
-          <h4 className="mb-2 text-lg">Temperament</h4>
+          <h4
+            className={`mb-2 text-lg ${data.temperament ? "block" : "hidden"}`}
+          >
+            Temperament
+          </h4>
           <p className="text-slate-600 mb-6">{data.temperament}</p>
           {ratings.map((rating, index) => (
             <div key={index}>

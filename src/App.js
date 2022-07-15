@@ -3,6 +3,7 @@ import useEffectOnce from "./hooks/useEffectOnce";
 import useDebounce from "./hooks/useDebounce";
 import Card from "./components/Card";
 import Nav from "./components/Nav";
+import SearchResult from "./components/SearchResult";
 import axios from "axios";
 import { useRef, useCallback, useState, useEffect } from "react";
 const App = () => {
@@ -84,7 +85,8 @@ const App = () => {
       <div className="container mt-4 mx-auto max-w-5xl">
         {isError && <p>Terjadi error</p>}
 
-        {data.length !== 0 &&
+        {searchQuery === "" ? (
+          data.length !== 0 &&
           data.map((kucing, index) => {
             if (index + 1 === data.length) {
               return (
@@ -95,7 +97,10 @@ const App = () => {
             } else {
               return <Card key={kucing.id} data={kucing} />;
             }
-          })}
+          })
+        ) : (
+          <SearchResult searchQuery={searchQuery} />
+        )}
         {isLoading && (
           <p className="text-center text-blue-800 text-lg mt-1 mb-8">
             Loading...
