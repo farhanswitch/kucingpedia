@@ -1,4 +1,6 @@
+//import icon
 import { FiSearch } from "react-icons/fi";
+
 const Nav = ({ searchQuery, handleChange }) => {
   return (
     <nav className="w-full py-4 sticky top-0 bg-white/80 backdrop-blur-md shadow-md ">
