@@ -1,13 +1,13 @@
 import "./styles/style.css";
 import useEffectOnce from "./hooks/useEffectOnce";
 import useDebounce from "./hooks/useDebounce";
+import { key } from "./utilities/key";
 import Card from "./components/Card";
 import Nav from "./components/Nav";
 import SearchResult from "./components/SearchResult";
 import axios from "axios";
 import { useRef, useCallback, useState, useEffect } from "react";
 const App = () => {
-  const key = "e712b07d-5259-41fa-9ba6-260dbdd2554e";
   const [data, setData] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
   const [isError, setIsError] = useState(false);

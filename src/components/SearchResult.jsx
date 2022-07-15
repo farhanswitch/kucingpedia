@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import useDebounce from "../hooks/useDebounce";
 import Card from "./Card";
+import { key } from "../utilities/key";
 const SearchResult = ({ searchQuery }) => {
-  const key = "e712b07d-5259-41fa-9ba6-260dbdd2554e";
   const [query, setQuery] = useState("");
   useDebounce(() => setQuery(searchQuery), 1000, [searchQuery]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +40,8 @@ const SearchResult = ({ searchQuery }) => {
       {isLoading && (
         <p className="text-center my-6 text-blue-800">Loading...</p>
       )}
-      {data.length !== 0 && !isLoading &&
+      {data.length !== 0 &&
+        !isLoading &&
         data.map((cat) => (
           <span key={cat.id}>
             <Card
