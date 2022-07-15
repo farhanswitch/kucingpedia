@@ -2,6 +2,7 @@ import "./styles/style.css";
 import useEffectOnce from "./hooks/useEffectOnce";
 import useDebounce from "./hooks/useDebounce";
 import Card from "./components/Card";
+import Nav from "./components/Nav";
 import axios from "axios";
 import { useRef, useCallback, useState, useEffect } from "react";
 const App = () => {
@@ -31,7 +32,7 @@ const App = () => {
     },
     [isLoading]
   );
-
+  const handleInputChange = (text) => setSearchQuery(text);
   const getCatsData = () => {
     try {
       setIsLoading(true);
@@ -79,19 +80,8 @@ const App = () => {
 
   return (
     <>
-      <div className="container mx-auto max-w-5xl">
-        <h1 className="text-center my-8 text-2xl bg-gradient-to-r from-[#2bc0e4] to-[#eaecc6] font-bold tracking-wider font-serif bg-clip-text text-transparent">
-          Kucingpedia
-        </h1>
-        <div className="search-area mb-6">
-          <input
-            className="border px-2 py-1 block mx-auto"
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
+      <Nav searchQuery={searchQuery} handleChange={handleInputChange} />
+      <div className="container mt-4 mx-auto max-w-5xl">
         {isError && <p>Terjadi error</p>}
 
         {data.length !== 0 &&
