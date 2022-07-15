@@ -1,9 +1,13 @@
+//import node modules
 import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
+//import local modules
 import useDebounce from "../hooks/useDebounce";
 import Card from "./Card";
 import { key } from "../utilities/key";
+
 const SearchResult = ({ searchQuery }) => {
+  //deklarasi states
   const [query, setQuery] = useState("");
   useDebounce(() => setQuery(searchQuery), 1000, [searchQuery]);
   const [isLoading, setIsLoading] = useState(true);
@@ -11,7 +15,9 @@ const SearchResult = ({ searchQuery }) => {
   const [data, setData] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
 
+  //deklarasi observer untuk memantau item terakhir
   const observer = useRef();
+  //deklarasi callback dijalankan saat item terakhir muncul di layar
   const lastItemRef = useCallback(
     (lastItemNode) => {
       if (isLoading) return;
@@ -31,7 +37,7 @@ const SearchResult = ({ searchQuery }) => {
     },
     [isLoading]
   );
-
+  //function ambil data ke API
   const getSearchResult = (query) => {
     try {
       setIsLoading(true);
@@ -42,7 +48,6 @@ const SearchResult = ({ searchQuery }) => {
         params: { q: query },
       }).then((response) => {
         setIsLoading(false);
-        console.log(response.data);
         setData([...response.data]);
       });
     } catch (error) {
@@ -50,7 +55,7 @@ const SearchResult = ({ searchQuery }) => {
       console.error(`Error : ${error}`);
     }
   };
-
+  //hal dijalankan saat pertama kali di render dan setiap kali query (value dari search bar) berubah
   useEffect(() => {
     setPageNumber(1);
     if (query !== "") {
