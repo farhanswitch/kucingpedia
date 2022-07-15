@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import useDebounce from "../hooks/useDebounce";
 import Card from "./Card";
@@ -9,6 +9,29 @@ const SearchResult = ({ searchQuery }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [data, setData] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const observer = useRef();
+  const lastItemRef = useCallback(
+    (lastItemNode) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (pageNumber < data.length / (pageNumber * 10) + 1) {
+            setIsLoading(true);
+            setTimeout(() => {
+              setPageNumber((prev) => prev + 1);
+              setIsLoading(false);
+            }, 1000);
+          }
+        }
+      });
+      if (lastItemNode) observer.current.observe(lastItemNode);
+    },
+    [isLoading]
+  );
+
   const getSearchResult = (query) => {
     try {
       setIsLoading(true);
@@ -29,6 +52,7 @@ const SearchResult = ({ searchQuery }) => {
   };
 
   useEffect(() => {
+    setPageNumber(1);
     if (query !== "") {
       getSearchResult(query);
     } else {
@@ -42,18 +66,34 @@ const SearchResult = ({ searchQuery }) => {
       )}
       {data.length !== 0 &&
         !isLoading &&
-        data.map((cat) => (
-          <span key={cat.id}>
-            <Card
-              data={cat}
-              refImg={cat.reference_image_id ? cat.reference_image_id : ""}
-            />
-          </span>
-        ))}
+        data.slice(0, pageNumber * 10).map((cat, index) => {
+          if (index + 1 !== data.slice(0, pageNumber * 10).length) {
+            return (
+              <span key={cat.id}>
+                <Card
+                  data={cat}
+                  refImg={cat.reference_image_id ? cat.reference_image_id : ""}
+                />
+              </span>
+            );
+          } else {
+            return (
+              <span key={cat.id} ref={lastItemRef}>
+                <Card
+                  data={cat}
+                  refImg={cat.reference_image_id ? cat.reference_image_id : ""}
+                />
+              </span>
+            );
+          }
+        })}
       {data.length === 0 && !isLoading && (
         <p className="text-center my-6 text-red-600">
           Data untuk keyword {query} tidak ditemukan{" "}
         </p>
+      )}
+      {isError && (
+        <p className="text-center text-red-600 my-6">Terjadi Error ! </p>
       )}
     </div>
   );
