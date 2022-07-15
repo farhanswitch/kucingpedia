@@ -35,6 +35,7 @@ const SearchResult = ({ searchQuery }) => {
       });
       if (lastItemNode) observer.current.observe(lastItemNode);
     },
+    //eslint-disable-next-line
     [isLoading]
   );
   //function ambil data ke API
@@ -63,6 +64,7 @@ const SearchResult = ({ searchQuery }) => {
     } else {
       setQuery(searchQuery);
     }
+    //eslint-disable-next-line
   }, [query]);
   return (
     <div className="search-result">

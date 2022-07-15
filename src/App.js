@@ -34,6 +34,7 @@ const App = () => {
       //observe item terakhir yang baru
       if (lastItemNode) observer.current.observe(lastItemNode);
     },
+    //eslint-disable-next-line
     [isLoading]
   );
   //function untuk handle saat value dari search bar berubah
@@ -60,6 +61,7 @@ const App = () => {
           }
           setData((prevData) => {
             //hilangkan  duplikasi data
+            //eslint-disable-next-line
             const newData = response.data.filter((data) => {
               const isExist = prevData.find((cat) => cat.id === data.id);
               if (!isExist) {
@@ -77,6 +79,7 @@ const App = () => {
   };
   useEffect(() => {
     getCatsData();
+    //eslint-disable-next-line
   }, [pageNumber]);
 
   return (
